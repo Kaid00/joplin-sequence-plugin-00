@@ -1,7 +1,21 @@
 const leftPad = require("left-pad");
+import { createDiagrams } from "./sequence_rendered.js";
 
 export default function (context) {
   return {
+    assets: function () {
+      return [
+        { name: "sequencePlugin.css" },
+        { name: "diag_rendered_comps/webfont.js" },
+        {
+          name: "diag_rendered_comps/underscore.js",
+        },
+        { name: "diag_rendered_comps/snap.svg.js" },
+        { name: "diag_rendered_comps/sequence-diagram.js" },
+        { name: "sequence-rendered.js" },
+      ];
+    },
+
     plugin: function (markdownIt, _options) {
       const pluginId = context.pluginId;
 
@@ -21,28 +35,16 @@ export default function (context) {
         const token = tokens[idx];
         if (token.info !== "sequence")
           return defaultRender(tokens, idx, options, env, self);
-        console.info(token.content.trim());
-        const postMessageWithResponseTest = `
-					webviewApi.postMessage('${pluginId}', 'justtesting').then(function(response) {
-						console.info('Got response in content script: ' + response);
-					});
-					return false;
-				`;
-
+        // ${createDiagrams(token.content.trim())}
         return `
-					<div class="just-testing">
-						<p>JUST TESTING TOKEN INFO: <div>${token.info}</div></p>
-            <p>JUST TESTING TOKEN CONTENT: <pre>${token.content.trim()}</pre></p>
-						<p><a href="#" onclick="${postMessageWithResponseTest.replace(
-              /\n/g,
-              " "
-            )}">Click to post a message "yalass" to plugin and check the response in the console</a></p>
-					</div>
+          <body>
+            <script> document.getElementByID("test").innerHTML = "test"</script>
+            <div> ${createDiagrams(token.content)}</div>
+            <p id = "test"></p>
+          </body>
+
 				`;
       };
-    },
-    assets: function () {
-      return [{ name: "sequencePlugin.css" }];
     },
   };
 }
